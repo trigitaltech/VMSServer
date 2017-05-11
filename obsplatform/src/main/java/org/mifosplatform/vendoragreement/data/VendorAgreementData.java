@@ -17,7 +17,7 @@ import org.mifosplatform.organisation.mcodevalues.data.MCodeData;
 import org.mifosplatform.organisation.priceregion.data.PriceRegionData;
 
 /**
- * Immutable data object for application user data.
+ * Immutable data object for application user data..
  */
 public class VendorAgreementData {
 
