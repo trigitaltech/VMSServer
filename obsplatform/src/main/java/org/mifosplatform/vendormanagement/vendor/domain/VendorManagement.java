@@ -78,6 +78,9 @@ public class VendorManagement extends  AbstractPersistable<Long> {
 	@Column(name = "email_id")
 	private String emailId;
 	
+	@Column(name = "password")
+	private String password;
+	
 	@Column(name = "is_deleted")
 	private String isDeleted="N";
 	
@@ -289,6 +292,38 @@ public class VendorManagement extends  AbstractPersistable<Long> {
 		
 		vendorBankDetails.update(this);
 		this.vendorBankDetails.add(vendorBankDetails);
+	}
+
+	public String getVendorName() {
+		return vendorName;
+	}
+
+	public void setVendorName(String vendorName) {
+		this.vendorName = vendorName;
+	}
+
+	public String getMobileNo() {
+		return mobileNo;
+	}
+
+	public void setMobileNo(String mobileNo) {
+		this.mobileNo = mobileNo;
+	}
+
+	public String getEmailId() {
+		return emailId;
+	}
+
+	public void setEmailId(String emailId) {
+		this.emailId = emailId;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
 	}
 
 	
