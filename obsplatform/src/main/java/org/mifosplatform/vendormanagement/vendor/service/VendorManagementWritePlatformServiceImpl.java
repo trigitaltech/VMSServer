@@ -2,6 +2,15 @@ package org.mifosplatform.vendormanagement.vendor.service;
 
 import java.util.Map;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.mifosplatform.commands.domain.CommandWrapper;
+import org.mifosplatform.commands.service.CommandWrapperBuilder;
+import org.mifosplatform.commands.service.PortfolioCommandSourceWritePlatformService;
+import org.mifosplatform.infrastructure.configuration.domain.Configuration;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationConstants;
+import org.mifosplatform.infrastructure.configuration.domain.ConfigurationRepository;
+import org.mifosplatform.infrastructure.configuration.exception.ConfigurationPropertyNotFoundException;
 import org.mifosplatform.infrastructure.core.api.JsonCommand;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResult;
 import org.mifosplatform.infrastructure.core.data.CommandProcessingResultBuilder;
@@ -27,24 +36,30 @@ public class VendorManagementWritePlatformServiceImpl implements VendorManagemen
 	
 	private static final Logger LOGGER = (Logger) LoggerFactory.getLogger(VendorManagementWritePlatformServiceImpl.class);	
 	
-	private PlatformSecurityContext context;
-	private VendorManagementRepository vendormanagementRepository; 
-	private VendorManagementCommandFromApiJsonDeserializer fromApiJsonDeserializer;
-	private VendorBankDetailsRepository vendorBankDetailsRepository;
-	private VendorManagementReadPlatformService vendorManagementReadPlatformService;
+	private final PlatformSecurityContext context;
+	private final VendorManagementRepository vendormanagementRepository; 
+	private final VendorManagementCommandFromApiJsonDeserializer fromApiJsonDeserializer;
+	private final VendorBankDetailsRepository vendorBankDetailsRepository;
+	private final VendorManagementReadPlatformService vendorManagementReadPlatformService;
+	private final ConfigurationRepository configurationRepository;
+	private final PortfolioCommandSourceWritePlatformService  portfolioCommandSourceWritePlatformService;
 	 
 	@Autowired
 	public VendorManagementWritePlatformServiceImpl(final PlatformSecurityContext context, 
 			final VendorManagementRepository vendormanagementRepository, 
 			final VendorManagementCommandFromApiJsonDeserializer fromApiJsonDeserializer,
 			final VendorBankDetailsRepository vendorBankDetailsRepository,
-			final VendorManagementReadPlatformService vendorManagementReadPlatformService) {
+			final VendorManagementReadPlatformService vendorManagementReadPlatformService,
+			final ConfigurationRepository configurationRepository,
+			final PortfolioCommandSourceWritePlatformService  portfolioCommandSourceWritePlatformService) {
 		
 		this.context = context;
 		this.vendormanagementRepository = vendormanagementRepository;
 		this.fromApiJsonDeserializer = fromApiJsonDeserializer;
 		this.vendorBankDetailsRepository = vendorBankDetailsRepository;
 		this.vendorManagementReadPlatformService = vendorManagementReadPlatformService;
+		this.configurationRepository = configurationRepository;
+		this.portfolioCommandSourceWritePlatformService = portfolioCommandSourceWritePlatformService;
 	}
 	
 	@Transactional
@@ -54,6 +69,13 @@ public class VendorManagementWritePlatformServiceImpl implements VendorManagemen
 		try{
 			
 			this.context.authenticatedUser();
+			
+			Configuration configuration=this.configurationRepository.findOneByName(ConfigurationConstants.CONFIG_IS_SELFCAREUSER);
+			
+			if(configuration == null){
+            	throw new ConfigurationPropertyNotFoundException(ConfigurationConstants.CONFIG_IS_SELFCAREUSER);
+            }
+			
 			this.fromApiJsonDeserializer.validateForCreate(command.json());
 			
 			final String bankName = command.stringValueOfParameterNamed("bankName");
@@ -72,11 +94,29 @@ public class VendorManagementWritePlatformServiceImpl implements VendorManagemen
 			vendor.addVendorBankDetails(vendorBankDetails);
 			
 			this.vendormanagementRepository.save(vendor);
+
+			if (configuration.isEnabled()) {
+
+				final JSONObject selfcarecreation = new JSONObject();
+				selfcarecreation.put("userName", vendor.getVendorName());
+				selfcarecreation.put("uniqueReference", vendor.getEmailId());
+				selfcarecreation.put("clientId", vendor.getId());
+				//selfcarecreation.put("device", command.stringValueOfParameterNamed("device"));
+				selfcarecreation.put("mailNotification", true);
+				selfcarecreation.put("password", vendor.getPassword());
+
+				final CommandWrapper selfcareCommandRequest = new CommandWrapperBuilder().createSelfCare().withJson(selfcarecreation.toString()).build();
+				this.portfolioCommandSourceWritePlatformService.logCommandSource(selfcareCommandRequest);
+			}
+			
 			return new CommandProcessingResult(vendor.getId());
 		} catch (DataIntegrityViolationException dve) {
 			 handleCodeDataIntegrityIssues(command, dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
+		} catch (JSONException e) {
+			e.printStackTrace();
 		}
+		return CommandProcessingResult.empty();
 	}
 	
 
