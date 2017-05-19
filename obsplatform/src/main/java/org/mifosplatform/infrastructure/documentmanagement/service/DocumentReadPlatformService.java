@@ -17,4 +17,6 @@ public interface DocumentReadPlatformService {
     DocumentData retrieveDocument(String entityType, Long entityId, Long documentId);
 
 	FileData retrieveFileData(String entityType, Long entityId, Long documentId);
+	
+	//DocumentData retrieveVendorDocument(String documentName,Long entityId);
 }

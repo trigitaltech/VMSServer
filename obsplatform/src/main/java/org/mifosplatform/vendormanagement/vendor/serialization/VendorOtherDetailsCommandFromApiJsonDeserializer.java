@@ -31,7 +31,7 @@ public final class VendorOtherDetailsCommandFromApiJsonDeserializer {
      */
     private final Set<String> supportedParameters = new HashSet<String>(Arrays.asList("id", "vendorId","panNo", 
     		  "incurCertification",  "stNo",  "msmStatus", "msmRegNo", "msmRegDate","vatNo",
-    		  "gstNo","cstNo","dateFormat", "locale"));
+    		  "gstNo","cstNo","dateFormat", "locale"/*,"fileArrayData"*/));
     
     
     private final FromJsonHelper fromApiJsonHelper;

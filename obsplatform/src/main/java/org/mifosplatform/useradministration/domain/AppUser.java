@@ -332,7 +332,7 @@ public class AppUser extends AbstractPersistable<Long> implements PlatformUser {
 	}
 
 	public String getMobile() {
-		return mobile;
+		return this.mobile;
 	}
 
 	public void setMobile(String mobile) {

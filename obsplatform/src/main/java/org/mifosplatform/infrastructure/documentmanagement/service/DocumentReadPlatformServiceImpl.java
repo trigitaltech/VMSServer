@@ -15,6 +15,7 @@ import org.mifosplatform.infrastructure.core.service.TenantAwareRoutingDataSourc
 import org.mifosplatform.infrastructure.documentmanagement.data.DocumentData;
 import org.mifosplatform.infrastructure.documentmanagement.data.FileData;
 import org.mifosplatform.infrastructure.documentmanagement.exception.DocumentNotFoundException;
+import org.mifosplatform.infrastructure.documentmanagement.exception.VendorDocumentNotFoundException;
 import org.mifosplatform.infrastructure.security.service.PlatformSecurityContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -136,5 +137,63 @@ public class DocumentReadPlatformServiceImpl implements DocumentReadPlatformServ
 		 final File file = new File(documentData.fileLocation());
 		 return new FileData(file, documentData.fileName(), documentData.contentType());
 	}
+	
+	 /*@Override
+	    public DocumentData retrieveVendorDocument(final String documentName,final Long entityId) {
+
+	        try {
+	            this.context.authenticatedUser();
+
+	            // TODO verify if the entities are valid and a
+	            // user has data
+	            // scope for the particular entities
+	            final VendorDocumentMapper mapper = new VendorDocumentMapper(true,true);
+	            final String sql = "select " + mapper.schema() + " and d.id=? ";
+	            return this.jdbcTemplate.queryForObject(sql, mapper, new Object[] { documentName, entityId });
+	        } catch (final EmptyResultDataAccessException e) {
+	            throw new VendorDocumentNotFoundException(documentName);
+	        }
+	    }
+	 
+	 private static final class VendorDocumentMapper implements RowMapper<DocumentData> {
+
+	        private final boolean hideLocation;
+	        private final boolean hideStorageType;
+
+	        public VendorDocumentMapper(final boolean hideLocation,final boolean hideStorageType) {
+	            this.hideLocation = hideLocation;
+	            this.hideStorageType = hideStorageType;
+	        }
+
+	        public String schema() {
+	            return "d.id as id, d.parent_entity_type as parentEntityType, d.parent_entity_id as parentEntityId, d.name as name, "
+	                    + " d.file_name as fileName, d.size as fileSize, d.type as fileType, "
+	                    + " d.description as description, d.location as location,d.storage_type_enum as storageType"
+	                    + " from m_document d where d.name=?";
+	        }
+
+	        @Override
+	        public DocumentData mapRow(final ResultSet rs, final int rowNum) throws SQLException {
+
+	            final Long id = JdbcSupport.getLong(rs, "id");
+	            final Long parentEntityId = JdbcSupport.getLong(rs, "parentEntityId");
+	            final Long fileSize = JdbcSupport.getLong(rs, "fileSize");
+	            final String parentEntityType = rs.getString("parentEntityType");
+	            final String name = rs.getString("name");
+	            final String fileName = rs.getString("fileName");
+	            final String fileType = rs.getString("fileType");
+	            final String description = rs.getString("description");
+	            String location = null;
+	            Integer storageType = null;
+	            if (!this.hideLocation) {
+	                location = rs.getString("location");
+	            }
+	            if (!this.hideStorageType) {
+	            	storageType = rs.getInt("storageType");
+	            	}
+
+	            return new DocumentData(id, parentEntityType, parentEntityId, name, fileName, fileSize, fileType, description, location,storageType);
+	        }
+	    }*/
     
 }
