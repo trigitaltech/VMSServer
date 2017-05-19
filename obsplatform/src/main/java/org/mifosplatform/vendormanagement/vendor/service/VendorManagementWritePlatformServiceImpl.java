@@ -95,7 +95,7 @@ public class VendorManagementWritePlatformServiceImpl implements VendorManagemen
 			
 			this.vendormanagementRepository.save(vendor);
 
-			if (configuration.isEnabled()) {
+			/*if (configuration.isEnabled()) {
 
 				final JSONObject selfcarecreation = new JSONObject();
 				selfcarecreation.put("userName", vendor.getVendorName());
@@ -107,16 +107,16 @@ public class VendorManagementWritePlatformServiceImpl implements VendorManagemen
 
 				final CommandWrapper selfcareCommandRequest = new CommandWrapperBuilder().createSelfCare().withJson(selfcarecreation.toString()).build();
 				this.portfolioCommandSourceWritePlatformService.logCommandSource(selfcareCommandRequest);
-			}
+			}*/
 			
 			return new CommandProcessingResult(vendor.getId());
 		} catch (DataIntegrityViolationException dve) {
 			 handleCodeDataIntegrityIssues(command, dve);
 			return new CommandProcessingResult(Long.valueOf(-1));
-		} catch (JSONException e) {
+		} /*catch (JSONException e) {
 			e.printStackTrace();
-		}
-		return CommandProcessingResult.empty();
+		}*/
+		//return CommandProcessingResult.empty();
 	}
 	
 

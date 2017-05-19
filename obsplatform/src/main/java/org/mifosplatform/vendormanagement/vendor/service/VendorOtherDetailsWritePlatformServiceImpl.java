@@ -49,6 +49,9 @@ public class VendorOtherDetailsWritePlatformServiceImpl implements VendorOtherDe
 			final VendorOtherDetails vendor = VendorOtherDetails.fromJson(command);
 			
 			this.vendorOtherDetailsRepository.save(vendor);
+			
+			//final String filesUploadArray[] = command.arrayValueOfParameterNamed("fileArrayData");
+			
 			return new CommandProcessingResult(vendor.getId());
 		} catch (DataIntegrityViolationException dve) {
 			 handleCodeDataIntegrityIssues(command, dve);

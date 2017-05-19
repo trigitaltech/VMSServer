@@ -126,6 +126,18 @@ public class FileUtils {
                 + File.separator + "documents" + File.separator + entityType + File.separator + entityId + File.separator
                 + FileUtils.generateRandomString();
     }
+    
+    /**
+     * Generate the directory path for storing the new vendordocument
+     * 
+     * @param entityType
+     * @return
+     */
+    public static String generateVendorFileParentDirectory(String entityType) {
+        return FileUtils.MIFOSX_BASE_DIR + File.separator + ThreadLocalContextUtil.getTenant().getName().replaceAll(" ", "").trim()
+                + File.separator + "vendordocuments" + File.separator + entityType + File.separator + File.separator
+                + FileUtils.generateRandomString();
+    }
 
     /**
      * Generate directory path for storing new Image
